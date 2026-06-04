@@ -1,17 +1,7 @@
-lines 1/2 are number of communists/loyalists
+lines 1 and 2 are number of communists/loyalists. currently lcd of numbers 3-12
 
-line 47 determiens group size
+run command node script.js in terminal to get results. 
 
-in terminal run node script.js number is the percent that loyalists win
+auto runs groups sized 3-12. can be changed on line 43
 
-if theres leftovers they are distributed to the groups
-
-examples - 4 people per group 21 people
-[5, 4, 4, 4, 4]
-
-side effect if 21 people into groups of 6 it ends up as
-[7, 7, 7]
-
-even sized groups better than odd
-
-runs 1 million trials. takes a second to load usually but not long.
+percentage shown in results is percent of groups loyalists win.

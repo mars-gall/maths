@@ -3,7 +3,7 @@ const numLoyalists = 16632
 
 const people = [
     ...Array(numCommunists).fill("C"),
-    ...Array(numLoyalists).fill("I")
+    ...Array(numLoyalists).fill("L")
 ];
 
 function shuffle(array) {
@@ -35,7 +35,7 @@ function makeGroups(people, groupSize) {
     }
 
     return groups;
-    
+
 }
 
 const trials = 1000;
