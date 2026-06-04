@@ -1,5 +1,5 @@
-const numCommunists = 8
-const numLoyalists = 13
+const numCommunists = 11088
+const numLoyalists = 16632
 
 const people = [
     ...Array(numCommunists).fill("C"),
@@ -34,27 +34,34 @@ function makeGroups(people, groupSize) {
         }
     }
 
-
     return groups;
+    
 }
 
-let communistGroups = 0
-let totalGroups = 0
+const trials = 1000;
 
-const trials = 1000000;
+for (let groupSize = 3; groupSize <= 12; groupSize++) {
 
-for (let i = 0; i < trials; i++) {
-    const groups = makeGroups (people,4);
+    let communistGroups = 0
+    let totalGroups = 0
+
+    for (let t = 0; t < trials; t++) {
+        const groups = makeGroups (people,groupSize);
     
-    for (const group of groups) {
+        for (const group of groups) {
             totalGroups++;
             const numC = group.filter(person => person === "C").length
 
-        if (numC >= group.length / 3) {
-            communistGroups++;
+            if (numC >= group.length / 3) {
+                communistGroups++;
+            }
         }
     }
-}
 
-console.log(
-    ((1- (communistGroups / totalGroups)) * 100).toFixed(2) + "%");
+    const percentage = (1 - (communistGroups / totalGroups)) * 100
+    
+    console.log(
+        `Group Size ${groupSize}: ${percentage.toFixed(2)}%`
+    );
+    
+}
