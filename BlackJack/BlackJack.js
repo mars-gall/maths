@@ -19,6 +19,9 @@ let dealerHand = [];
 let playerHand = [];
 let handSplit = false;
 let handSwapping = false;
+let playerWins = 0;
+let dealerWins = 0;
+let gameOver = false
 
 const readline = require("readline");
 
@@ -81,18 +84,19 @@ function simulate(numPlayers) {
 }
 
 function restart() {
+    gameOver = false;
     simulate(2);
 }
 
 function playerTurn() {
-    console.log(` Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]}`)
+    console.log(`Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]}`)
         console.log("Player may hit or stand. If player has two of the same card, they may also split. If the player has already split they may swap hands so long as they have not busted or stood with their other hand. What would you like to do? Type 'hit', 'stand', 'split', or 'swap'.")
     askPlayer();
 }
 
 function askPlayer() {
 
-    r1.question("Choose action (hit, stand, split, swap): ", (answer) => {
+    r1.question("Choose action: ", (answer) => {
         if (answer === "hit") {
             hitPlayer();
     }
@@ -104,6 +108,12 @@ function askPlayer() {
         }
         else if (answer === "swap") {
             swapHands();
+        }
+        else if (answer === "yes" && gameOver === true) {
+            restart();
+        }
+        else if (answer === "no" && gameOver === true) {
+            r1.close();
         }
         else {
             console.log("Invalid input, please try again.")
@@ -163,17 +173,31 @@ function standPlayer() {
 
 function splitPlayer(hand) {
     
-    if (HandValue([playerHand[0]]) === HandValue([playerHand[1]]) && handSplit === false) {
-        handSplit = true;
-        handSwapping = true;
-        const splitHand1 = [playerHand[0], cards[Math.floor(Math.random() * cards.length)]]
-        const splitHand2 = [playerHand[1], cards[Math.floor(Math.random() * cards.length)]]
-        playerHand = splitHand1;
-        hands[1] = splitHand1;
-        hands[2] = splitHand2;
-        hands.push(splitHand2);
-        console.log(`Hand 1: ${splitHand1} Hand 2: ${splitHand2}. Player is currently playing with hand 1, if player busts or stands they will move on to hand 2. The player may also swap to their other hand so long as they have not busted or stood with their other hand.`)
-        askPlayer();
+/*    if (handSplit === false) {
+        for (let i = 0; i < playerHand.length - 1; i++) {
+            for (let j = i; j < playerHand.length; j++) {
+                if (HandValue([playerHand[i]]) === HandValue([playerHand[j]])) {
+                    handSplit = true;
+                    handSwapping = true;
+                    hands[1] = [playerHand[i], cards[Math.floor(Math.random() * cards.length)]]
+                    hands[2] = [playerHand[j], cards[Math.floor(Math.random() * cards.length)]]
+                    playerHand = hands[1];
+                    hands.push(hands[2]);
+                    console.log(`Hand 1: ${hands[1]} Hand 2: ${hands[2]}. Player is currently playing with hand 1, if player busts or stands they will move on to hand 2. The player may also swap to their other hand so long as they have not busted or stood with their other hand.`)
+                    askPlayer();
+                }
+            }
+        }
+    }*/
+    if (handSplit === false && HandValue([playerHand[0]]) === HandValue([playerHand[1]])) {
+            handSplit = true;
+            handSwapping = true;
+            hands[1] = [playerHand[0], cards[Math.floor(Math.random() * cards.length)]]
+            hands[2] = [playerHand[1], cards[Math.floor(Math.random() * cards.length)]]
+            playerHand = hands[1];
+            hands.push(hands[2]);
+            console.log(`Hand 1: ${hands[1]} Hand 2: ${hands[2]}. Player is currently playing with hand 1, if player busts or stands they will move on to hand 2. The player may also swap to their other hand so long as they have not busted or stood with their other hand.`)
+            askPlayer();
     }
     else if (handSplit === true) {
         console.log(`Player has already split, cannot split again.`)
@@ -225,8 +249,10 @@ function dealerTurn() {
 
 function endGame() {
 
+    gameOver = true;
+
     if (handSplit === true) {
-        if (HandValue(hands[1]) <= 21 && HandValue(hands[1]) >= HandValue(hands[2])) {
+        if (HandValue(hands[1]) <= 21 && HandValue(hands[1]) >= HandValue(hands[2]) && HandValue(hands[2]) <= 21) {
             playerHand = hands[1];
         }
         else {
@@ -236,37 +262,49 @@ function endGame() {
 
     if (HandValue(playerHand) > 21 && HandValue(dealerHand) <= 21) {
         console.log(`BUST, Player Loses! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        dealerWins++
     }
 
     if (HandValue(dealerHand) > 21 && HandValue(playerHand) <= 21) {
         console.log(`Dealer BUST, Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        playerWins++
     }
 
     if (HandValue(playerHand) > 21 && HandValue(dealerHand) > 21) {
         console.log(`DOUBLE BUST, Tie goes to Dealer. Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        dealerWins++
     }
 
     if (HandValue(playerHand) === 21 && HandValue(dealerHand) !== 21) {
         console.log(`BLACKJACK! Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        playerWins++
     }
 
     if (HandValue(dealerHand) === 21 && HandValue(playerHand) !== 21) {
         console.log(`BLACKJACK! Dealer Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        dealerWins++
     }
 
     if (HandValue(playerHand) > HandValue(dealerHand) && HandValue(playerHand) < 21) {
         console.log(`Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        playerWins++
     }
 
     if (HandValue(dealerHand) > HandValue(playerHand) && HandValue(dealerHand) < 21) {
         console.log(`Dealer Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        dealerWins++
     }
 
     if (HandValue(playerHand) === HandValue(dealerHand) && HandValue(playerHand) <= 21) {
         console.log(`EQUAL HANDS, Tie goes to Dealer. Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
+        dealerWins++
     }
 
-    r1.close();
+    console.log(`Player Wins: ${playerWins} Dealer Wins: ${dealerWins}`)
+
+    console.log("Would you like to play again? Type 'yes' or 'no'")
+
+    askPlayer();
 
 }
 
