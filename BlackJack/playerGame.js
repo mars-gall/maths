@@ -90,8 +90,15 @@ function restart() {
 
 function playerTurn() {
     console.log(`Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]}`)
+
+    if (HandValue(playerHand) === 21) {
+        console.log(`Player has BLACKJACK!`)
+        dealerTurn();
+    }
+    else {
         console.log("Player may hit or stand. If player has two of the same card, they may also split. If the player has already split they may swap hands so long as they have not busted or stood with their other hand. What would you like to do? Type 'hit', 'stand', 'split', or 'swap'.")
     askPlayer();
+    }
 }
 
 function askPlayer() {
