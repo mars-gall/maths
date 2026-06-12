@@ -199,7 +199,6 @@ function standPlayer() {
     else {
         console.log(`fuck`)
     }
-
 }
 
 function splitPlayer() {
@@ -238,7 +237,6 @@ function splitPlayer() {
     }
 }
 
-
 function swapHands() {
     if (handSplit === true) {
        handNum++;
@@ -273,10 +271,9 @@ function dealerTurn() {
 function endGame() {
 
     gameOver = true;
-
     
     for (let i = 1; i <= numHands; i++) {
-        playerHand = hands[i]
+        playerHand = hands[i];
 
             if (HandValue(playerHand) > 21) {
                 console.log(`BUST, Player Loses! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
@@ -305,16 +302,16 @@ function endGame() {
             }
             else if (HandValue(playerHand) === HandValue(dealerHand)) {
                 console.log(`Tie. Bet pushed. Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
-            }
-        }
+            };
+        };
 
     monies = Math.floor(monies)
 
     console.log(`Player Wins: ${playerWins} Dealer Wins: ${dealerWins} Player Money: $${monies}`)
-
     console.log("Would you like to play again? Type 'yes' or 'no'")
 
     askPlayer();
 
-}
+};
+
 simulate(2);
