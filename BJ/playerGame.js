@@ -26,6 +26,7 @@ let monies = 1000
 let playerBet = 0
 let numHands = 0
 
+const { matchesGlob } = require("path");
 const readline = require("readline");
 
 const r1 = readline.createInterface({
@@ -202,21 +203,22 @@ function standPlayer() {
 
 function splitPlayer() {
     
-    if (handSplit === false && HandValue([playerHand[0]]) === HandValue([playerHand[1]])) {
+    if (HandValue([playerHand[0]]) === HandValue([playerHand[1]])) {
             handSplit = true;
             handSwapping = true;
             playerBet = playerBet + 50
             numHands = numHands + 1
-            hands[1] = [playerHand[0], cards[Math.floor(Math.random() * cards.length)]]
-            hands[2] = [playerHand[1], cards[Math.floor(Math.random() * cards.length)]]
-            playerHand = hands[1];
-            hands.push(hands[2]);
+
+            playerHands.push(hands[numHands])
+
+            for (i = numHands - 2, i < numHands; i++;) {
+                for (j = -1, i < numHands; j++;) {
+                hands[i] = [playerHand[j], cards[Math.floor(Math.random() * cards.length)]]
+                playerHand = hands[numHands - 1]
+                }
+            }
             console.log(`Hand 1: ${hands[1]} Hand 2: ${hands[2]}. Player is currently playing with hand 1, if player busts or stands they will move on to hand 2. The player may also swap to their other hand so long as they have not busted or stood with their other hand.`)
             askPlayer();
-    }
-    else if (handSplit === true) {
-        console.log(`Player has already split, cannot split again.`)
-        playerTurn();
     }
     else {
         console.log("Cannot Split, Cards are not the same value.")
@@ -270,7 +272,6 @@ function endGame() {
     for (i = 0, i < numHands; i++;) {
         playerHand = hands[i]
 
-        if (handSplit === false) {
             if (HandValue(playerHand) > 21) {
                 console.log(`BUST, Player Loses! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 dealerWins++
@@ -300,7 +301,6 @@ function endGame() {
                 console.log(`Tie. Bet pushed. Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
             }
         }
-    }
 
     monies = Math.floor(monies)
 
