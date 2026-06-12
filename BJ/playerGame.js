@@ -25,6 +25,7 @@ let gameOver = false
 let monies = 1000
 let playerBet = 0
 let numHands = 0
+let handNum = 1
 
 const { matchesGlob } = require("path");
 const readline = require("readline");
@@ -117,7 +118,7 @@ function askPlayer() {
             standPlayer();
         }
         else if (answer === "split") {
-            splitPlayer(playerHand);
+            splitPlayer();
         }
         else if (answer === "swap") {
             swapHands();
@@ -204,50 +205,55 @@ function standPlayer() {
 function splitPlayer() {
     
     if (HandValue([playerHand[0]]) === HandValue([playerHand[1]])) {
+            
             handSplit = true;
-            handSwapping = true;
-            playerBet = playerBet + 50
-            numHands = numHands + 1
+            playerBet += 50
 
-            playerHands.push(hands[numHands])
+            const firstCard = playerHand[0]
+            const secondCard = playerHand[1]
 
-            for (i = numHands - 2, i < numHands; i++;) {
-                for (j = -1, i < numHands; j++;) {
-                hands[i] = [playerHand[j], cards[Math.floor(Math.random() * cards.length)]]
-                playerHand = hands[numHands - 1]
-                }
-            }
-            console.log(`Hand 1: ${hands[1]} Hand 2: ${hands[2]}. Player is currently playing with hand 1, if player busts or stands they will move on to hand 2. The player may also swap to their other hand so long as they have not busted or stood with their other hand.`)
+            hands[1] = [
+                firstCard,
+                cards[Math.floor(Math.random() * cards.length)]
+            ];
+
+            hands.push ([
+                secondCard,
+                cards[Math.floor(Math.random() * cards.length)]
+            ]);
+
+            numHands = hands.length - 1
+          
+            handNum = 1
+            playerHand = hands[handNum]
+    
+            console.log(`Player split into ${numHands} hands.`)
+            console.log(`Current Hand: ${playerHand}`)
             askPlayer();
-    }
+        }
+    
     else {
         console.log("Cannot Split, Cards are not the same value.")
         playerTurn();
     }
-
 }
 
-function swapHands() {
 
-    if (handSplit === true && handSwapping === true) {
-        if (playerHand === hands[1]) {
-            playerHand = hands[2];
-        }
-        else if (playerHand === hands[2]) {
-            playerHand = hands[1];
-        }
-        console.log(`Player has swapped hands: ${playerHand}.`)
-        askPlayer();
-    }
-    else if (handSplit === true && handSwapping === false) {
-        console.log(`Player has either busted or stood with their first hand, they may no longer swap hands.`)
-        playerTurn();
+function swapHands() {
+    if (handSplit === true) {
+       handNum++;
+       if (handNum > numHands) {
+        handNum = 1;
+       };
+       playerHand = hands[handNum];
+       console.log(`Player is playing with Hand ${handNum}: ${playerHand}`)
+       askPlayer();
     }
     else {
         console.log(`Player has not split, and therefore cannot swap hands.`)
         playerTurn();
-    }
-}
+    };
+};
 
 function dealerTurn() {
 
@@ -269,7 +275,7 @@ function endGame() {
     gameOver = true;
 
     
-    for (i = 0, i < numHands; i++;) {
+    for (let i = 1; i <= numHands; i++) {
         playerHand = hands[i]
 
             if (HandValue(playerHand) > 21) {
