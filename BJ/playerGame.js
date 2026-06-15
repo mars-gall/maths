@@ -15,6 +15,7 @@ const cards = [
 ];
 
 const hands = [];
+const stoodHands = [];
 let dealerHand = [];
 let playerHand = [];
 let handSplit = false;
@@ -122,6 +123,7 @@ function askPlayer() {
         }
         else if (answer === "swap") {
             swapHands();
+            askPlayer();
         }
         else if (answer === "double") {
             doublePlayer();
@@ -145,25 +147,13 @@ function hitPlayer() {
     playerHand.push(cards[Math.floor(Math.random() * cards.length)]);
     console.log(`Player Hits. Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]}`)
 
-    if (HandValue(playerHand) > 21 && handSplit === false || HandValue(playerHand) > 21 && handSplit === true && handSwapping === false) {
+    if (HandValue(playerHand) > 21) {
         console.log(`Player has BUSTED with hand ${playerHand}.`)
-        dealerTurn();
+        standPlayer();
     }
-    else if (HandValue(playerHand) > 21 && handSplit === true && handSwapping === true) {
-        console.log(`Player has BUSTED with hand: ${playerHand}. Player will now swap to their other hand.`)
-        swapHands();
-        handSwapping = false;
-         console.log(`Player is now playing with hand: ${playerHand}. The player can no longer swap hands`)
-        
-    }
-    else if (HandValue(playerHand) === 21 && handSplit === true && handSwapping === false || HandValue(playerHand) === 21 && handSplit === false) {
-        console.log(`Player has BLACKJACK!`)
-        dealerTurn();
-    }
-    else if (HandValue(playerHand) === 21 && handSplit === true && handSwapping === true) {
-        console.log(`Player has BLACKJACK! Swapping to other hand. Swapping hands is now disabled.`)
-        swapHands();
-        handSwapping = false
+    else if (HandValue(playerHand) === 21) {
+        console.log(`Player has BLACKJACK ${playerHand}.`)
+        standPlayer();        
     }
     else if (HandValue(playerHand) < 21) {
         askPlayer();
@@ -181,24 +171,37 @@ function doublePlayer() {
 
 function standPlayer() {
 
-    if (handSplit === true && handSwapping === true) {
+    stoodHands.push(hands[handNum])
+    hands.slice(handNum, 1)
+    numHands--
+
+    if (handSplit) {
+        swapHands();
+        askPlayer();
+    }
+    else {
+        dealerTurn();
+    }
+
+
+    /*if (handSplit && handSwapping) {
         console.log(`Player Stands with their hand: ${playerHand}. The player can no longer swap hands and will now move on to their other hand.`)
         swapHands();
         handSwapping = false;
          console.log(`Player is now playing with hand: ${playerHand}. The player can no longer swap hands`)
         askPlayer();
     }
-    else if (handSplit === true && handSwapping === false) {
+    else if (handSplit && !handSwapping) {
         console.log(`Player Stands with their second hand: ${playerHand}`)
         dealerTurn();
     }
-    else if (handSplit === false) {
+    else if (!handSplit) {
         console.log(`Player Stands with their hand: ${playerHand}`)
         dealerTurn();
     }
     else {
         console.log(`fuck`)
-    }
+    }*/
 }
 
 function splitPlayer() {
@@ -238,19 +241,14 @@ function splitPlayer() {
 }
 
 function swapHands() {
-    if (handSplit === true) {
+    if (handSplit) {
        handNum++;
        if (handNum > numHands) {
         handNum = 1;
        };
        playerHand = hands[handNum];
        console.log(`Player is playing with Hand ${handNum}: ${playerHand}`)
-       askPlayer();
     }
-    else {
-        console.log(`Player has not split, and therefore cannot swap hands.`)
-        playerTurn();
-    };
 };
 
 function dealerTurn() {
@@ -273,7 +271,7 @@ function endGame() {
     gameOver = true;
     
     for (let i = 1; i <= numHands; i++) {
-        playerHand = hands[i];
+        playerHand = stoodHands[i];
 
             if (HandValue(playerHand) > 21) {
                 console.log(`BUST, Player Loses! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
