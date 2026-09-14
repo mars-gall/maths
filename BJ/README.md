@@ -1,1 +1,1 @@
-in terminal run node BlackJack/BlackJack.js to play
+in terminal run node BJ/PlayerGame.js to play

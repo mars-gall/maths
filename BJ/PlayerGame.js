@@ -15,16 +15,16 @@ const cards = [
 ];
 
 const hands = [];
+const activeHandsWorth = [];
 const stoodHands = [];
+const stoodHandsWorth = [];
 let dealerHand = [];
 let playerHand = [];
 let handSplit = false;
-let handSwapping = false;
 let playerWins = 0;
 let dealerWins = 0;
 let gameOver = false
 let monies = 1000
-let playerBet = 0
 let numHands = 0
 let handNum = 1
 
@@ -53,9 +53,9 @@ function dealCards(numPlayers) {
 
     for (let i = 0; i < numPlayers; i++) {
         hands.push(shuffled.slice(i * 2, i * 2 + 2));
-    }
+    };
     return hands;
-}
+};
 
 function HandValue(hand) {
     let value = 0;
@@ -85,8 +85,9 @@ function simulate(numPlayers) {
         hands.push(...dealCards(numPlayers));
         dealerHand = hands[0];
         playerHand = hands[1];
-        playerBet = 50
-        numHands = 1
+        activeHandsWorth.push(0)
+        activeHandsWorth.push(100)
+        numHands = 1;
 
    playerTurn();
 }
@@ -97,7 +98,7 @@ function restart() {
 }
 
 function playerTurn() {
-    console.log(`Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]} Player Bet: $${playerBet}`)
+    console.log(`Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]} Player Bet: $${activeHandsWorth[handNum]}`)
 
     if (HandValue(playerHand) === 21) {
         console.log(`Player has BLACKJACK!`)
@@ -164,7 +165,7 @@ function hitPlayer() {
 }
 
 function doublePlayer() {
-    playerBet = playerBet * 2
+    activeHandsWorth[handNum] = activeHandsWorth[handNum] * 2;
     playerHand.push(cards[Math.floor(Math.random() * cards.length)]);
     standPlayer();
 }
@@ -172,61 +173,44 @@ function doublePlayer() {
 function standPlayer() {
 
     stoodHands.push(hands[handNum])
-    hands.slice(handNum, 1)
+    stoodHandsWorth.push(activeHandsWorth[handNum])
+    hands.splice(handNum, 1)
+    activeHandsWorth.splice(handNum, 1)
     numHands--
 
-    if (handSplit) {
+    if (handSplit && numHands > 1) {
         swapHands();
         askPlayer();
     }
     else {
         dealerTurn();
-    }
-
-
-    /*if (handSplit && handSwapping) {
-        console.log(`Player Stands with their hand: ${playerHand}. The player can no longer swap hands and will now move on to their other hand.`)
-        swapHands();
-        handSwapping = false;
-         console.log(`Player is now playing with hand: ${playerHand}. The player can no longer swap hands`)
-        askPlayer();
-    }
-    else if (handSplit && !handSwapping) {
-        console.log(`Player Stands with their second hand: ${playerHand}`)
-        dealerTurn();
-    }
-    else if (!handSplit) {
-        console.log(`Player Stands with their hand: ${playerHand}`)
-        dealerTurn();
-    }
-    else {
-        console.log(`fuck`)
-    }*/
-}
+    };
+};
 
 function splitPlayer() {
     
-    if (HandValue([playerHand[0]]) === HandValue([playerHand[1]])) {
+    if (HandValue([playerHand[0]]) === HandValue([playerHand[1]]) && playerHand.length === 2) {
             
             handSplit = true;
-            playerBet += 50
 
-            const firstCard = playerHand[0]
-            const secondCard = playerHand[1]
-
-            hands[1] = [
+            const firstCard = playerHand[0];
+            const secondCard = playerHand[1];
+            
+            hands[handNum] = [
                 firstCard,
                 cards[Math.floor(Math.random() * cards.length)]
+                
             ];
 
-            hands.push ([
+            hands.push([
                 secondCard,
                 cards[Math.floor(Math.random() * cards.length)]
             ]);
 
+            activeHandsWorth.push(100)
+
             numHands = hands.length - 1
-          
-            handNum = 1
+
             playerHand = hands[handNum]
     
             console.log(`Player split into ${numHands} hands.`)
@@ -241,13 +225,17 @@ function splitPlayer() {
 }
 
 function swapHands() {
-    if (handSplit) {
+    if (handSplit && numHands > 1) {
        handNum++;
        if (handNum > numHands) {
         handNum = 1;
        };
        playerHand = hands[handNum];
-       console.log(`Player is playing with Hand ${handNum}: ${playerHand}`)
+       console.log(`Player is playing with Hand ${handNum}: ${playerHand}. Current Bet: ${activeHandsWorth[handNum]}`)
+    }
+    else {
+        console.log(`Player is playing with Hand ${handNum}: ${playerHand}. Current Bet: ${activeHandsWorth[handNum]}`)
+        console.log(`This is Players only hand`)
     }
 };
 
@@ -270,33 +258,33 @@ function endGame() {
 
     gameOver = true;
     
-    for (let i = 1; i <= numHands; i++) {
+    for (let i = 0; i < stoodHands.length; i++) {
         playerHand = stoodHands[i];
 
             if (HandValue(playerHand) > 21) {
                 console.log(`BUST, Player Loses! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 dealerWins++
-                monies = monies - playerBet / numHands
+                monies = monies - stoodHandsWorth[i]
             }
             else if (HandValue(dealerHand) > 21) {
                 console.log(`Dealer BUST, Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 playerWins++
-                monies = monies + playerBet / numHands
+                monies = monies + stoodHandsWorth[i]
             }
             else if (HandValue(playerHand) === 21 && HandValue(dealerHand) < 21) {
                 console.log(`BLACKJACK! Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 playerWins++
-                monies = monies + playerBet * 1.5 / numHands
+                monies = monies + stoodHandsWorth[i] * 1.5
             }
             else if (HandValue(dealerHand) > HandValue(playerHand)) {
                 console.log(`Dealer Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 dealerWins++
-                monies = monies - playerBet / numHands
+                monies = monies - stoodHandsWorth[i]
             }
             else if (HandValue(playerHand) > HandValue(dealerHand)) {
                 console.log(`Player Wins! Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
                 playerWins++
-                monies = monies + playerBet / numHands
+                monies = monies + stoodHandsWorth[i]
             }
             else if (HandValue(playerHand) === HandValue(dealerHand)) {
                 console.log(`Tie. Bet pushed. Player: ${HandValue(playerHand)} Dealer: ${HandValue(dealerHand)}`)
