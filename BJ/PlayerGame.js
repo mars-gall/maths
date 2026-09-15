@@ -20,12 +20,10 @@ const stoodHands = [];
 const stoodHandsWorth = [];
 let dealerHand = [];
 let playerHand = [];
-let handSplit = false;
 let playerWins = 0;
 let dealerWins = 0;
 let gameOver = false
 let monies = 1000
-let numHands = 0
 let handNum = 1
 
 const { matchesGlob } = require("path");
@@ -82,12 +80,14 @@ function HandValue(hand) {
 function simulate(numPlayers) {
 
         hands.length = 0;
+        activeHandsWorth.length = 0;
+        stoodHands.length = 0;
+        stoodHandsWorth.length = 0;
         hands.push(...dealCards(numPlayers));
         dealerHand = hands[0];
         playerHand = hands[1];
         activeHandsWorth.push(0)
         activeHandsWorth.push(100)
-        numHands = 1;
 
    playerTurn();
 }
@@ -176,9 +176,8 @@ function standPlayer() {
     stoodHandsWorth.push(activeHandsWorth[handNum])
     hands.splice(handNum, 1)
     activeHandsWorth.splice(handNum, 1)
-    numHands--
 
-    if (handSplit && numHands > 1) {
+    if (hands.length > 1) {
         swapHands();
         askPlayer();
     }
@@ -190,8 +189,6 @@ function standPlayer() {
 function splitPlayer() {
     
     if (HandValue([playerHand[0]]) === HandValue([playerHand[1]]) && playerHand.length === 2) {
-            
-            handSplit = true;
 
             const firstCard = playerHand[0];
             const secondCard = playerHand[1];
@@ -209,11 +206,9 @@ function splitPlayer() {
 
             activeHandsWorth.push(100)
 
-            numHands = hands.length - 1
-
             playerHand = hands[handNum]
     
-            console.log(`Player split into ${numHands} hands.`)
+            console.log(`Player split into ${hands.length - 1} hands.`)
             console.log(`Current Hand: ${playerHand}`)
             askPlayer();
         }
@@ -225,9 +220,9 @@ function splitPlayer() {
 }
 
 function swapHands() {
-    if (handSplit && numHands > 1) {
+    if (hands.length > 2) {
        handNum++;
-       if (handNum > numHands) {
+       if (handNum > hands.length - 1) {
         handNum = 1;
        };
        playerHand = hands[handNum];
