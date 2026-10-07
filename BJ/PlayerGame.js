@@ -26,7 +26,6 @@ let gameOver = false
 let monies = 1000
 let handNum = 1
 
-const { matchesGlob } = require("path");
 const readline = require("readline");
 
 const r1 = readline.createInterface({
@@ -34,26 +33,17 @@ const r1 = readline.createInterface({
     output: process.stdout
 });
 
-function shuffle(array) {
-    const arr = [...array];
-
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-
-        [arr[i], arr[j]] = [arr[j], arr[i]];
+function dealCards(numPlayers) {
+    
+    for (let i = 0; i < numPlayers; i++) {
+        hands.push([
+            cards.splice(Math.ceil(Math.random() * cards.length), 1)[0],
+            cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]
+        ]);
     }
-    return arr;
+    return hands;
 }
 
-function dealCards(numPlayers) {
-    const shuffled = shuffle(cards);
-    const hands = [];
-
-    for (let i = 0; i < numPlayers; i++) {
-        hands.push(shuffled.slice(i * 2, i * 2 + 2));
-    };
-    return hands;
-};
 
 function HandValue(hand) {
     let value = 0;
@@ -83,7 +73,7 @@ function simulate(numPlayers) {
         activeHandsWorth.length = 0;
         stoodHands.length = 0;
         stoodHandsWorth.length = 0;
-        hands.push(...dealCards(numPlayers));
+        dealCards(numPlayers);
         dealerHand = hands[0];
         playerHand = hands[1];
         activeHandsWorth.push(0)
@@ -145,7 +135,7 @@ function askPlayer() {
 
 function hitPlayer() {
 
-    playerHand.push(cards[Math.floor(Math.random() * cards.length)]);
+    playerHand.push(cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]);
     console.log(`Player Hits. Player Hand: ${playerHand} Dealer Showing: ${dealerHand[0]}`)
 
     if (HandValue(playerHand) > 21) {
@@ -166,7 +156,7 @@ function hitPlayer() {
 
 function doublePlayer() {
     activeHandsWorth[handNum] = activeHandsWorth[handNum] * 2;
-    playerHand.push(cards[Math.floor(Math.random() * cards.length)]);
+    playerHand.push(cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]);
     standPlayer();
 }
 
@@ -195,13 +185,13 @@ function splitPlayer() {
             
             hands[handNum] = [
                 firstCard,
-                cards[Math.floor(Math.random() * cards.length)]
+                cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]
                 
             ];
 
             hands.push([
                 secondCard,
-                cards[Math.floor(Math.random() * cards.length)]
+                cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]
             ]);
 
             activeHandsWorth.push(100)
@@ -239,7 +229,7 @@ function dealerTurn() {
     console.log(`Dealer's Turn. Dealer Hand: ${dealerHand}`)
 
     if (HandValue(dealerHand) < 17) {
-        dealerHand.push(cards[Math.floor(Math.random() * cards.length)]);
+        dealerHand.push(cards.splice(Math.ceil(Math.random() * cards.length), 1)[0]);
         console.log(`Dealer Hits. Dealer Hand: ${dealerHand}`)
         dealerTurn();
     }
