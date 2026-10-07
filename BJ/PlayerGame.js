@@ -286,3 +286,4 @@ function endGame() {
 };
 
 simulate(2);
+// :)
