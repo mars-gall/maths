@@ -1,4 +1,4 @@
-const cards = [
+var cards = [
     2, 2, 2, 2,
     3, 3, 3, 3,
     4, 4, 4, 4,
@@ -69,6 +69,21 @@ function HandValue(hand) {
 
 function simulate(numPlayers) {
 
+        cards = [
+            2, 2, 2, 2,
+            3, 3, 3, 3,
+            4, 4, 4, 4,
+            5, 5, 5, 5,
+            6, 6, 6, 6,
+            7, 7, 7, 7,
+            8, 8, 8, 8,
+            9, 9, 9, 9,
+            10, 10, 10, 10,
+            "J", "J", "J", "J",
+            "Q", "Q", "Q", "Q",
+            "K", "K", "K", "K",
+            "A", "A", "A", "A"
+        ];
         hands.length = 0;
         activeHandsWorth.length = 0;
         stoodHands.length = 0;
@@ -103,20 +118,20 @@ function playerTurn() {
 function askPlayer() {
 
     r1.question("Choose action: ", (answer) => {
-        if (answer === "hit") {
+        if (answer === "hit" && gameOver === false) {
             hitPlayer();
     }
-        else if (answer === "stand") {
+        else if (answer === "stand" && gameOver === false) {
             standPlayer();
         }
-        else if (answer === "split") {
+        else if (answer === "split" && gameOver === false) {
             splitPlayer();
         }
-        else if (answer === "swap") {
+        else if (answer === "swap" && gameOver === false) {
             swapHands();
             askPlayer();
         }
-        else if (answer === "double") {
+        else if (answer === "double" && gameOver === false) {
             doublePlayer();
         }
         else if (answer === "yes" && gameOver === true) {
@@ -286,4 +301,3 @@ function endGame() {
 };
 
 simulate(2);
-// :)
